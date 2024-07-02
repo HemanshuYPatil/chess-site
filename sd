@@ -1,0 +1,24 @@
+<h2>Game code</h2>
+        <input type="text" id="codeInput">
+        <button id="createGame">Create game</button>
+        <button id="joinGame">Join game</button>
+        <div style="color: red" id="errorMessage"></div> 
+
+
+
+
+        <script>
+                document.getElementById('createGame').addEventListener('click', function() {
+                    console.log(document.getElementById('codeInput').value)
+                    window.location.replace('/white?code=' + document.getElementById('codeInput').value);
+                });
+        
+                document.getElementById('joinGame').addEventListener('click', function() {
+                    window.location.replace('/black?code=' + document.getElementById('codeInput').value);
+                });
+        
+                var urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('error') == 'invalidCode') {
+                    document.getElementById('errorMessage').textContent = 'Invalid invite code';
+                }
+            </script>

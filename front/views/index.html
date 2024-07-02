@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chess Game</title>
+  {{head}}
+  <link rel="stylesheet" href="style.css" />
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    /* Google Fonts Link */
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+    /* Resetting default styling and setting font-family */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Montserrat", sans-serif;
+    }
+
+    body {
+      width: 100%;
+      min-height: 100vh;
+      padding: 0 10px;
+      display: flex;
+      background: #0f0f0f;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+
+    /* Login form styling */
+    .login_form {
+      width: 100%;
+      max-width: 435px;
+      background: #191919;
+      border-radius: 6px;
+      padding: 41px 30px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .login_form h3 {
+      font-size: 20px;
+      text-align: center;
+    }
+
+    /* Google & Apple button styling */
+    .login_form .login_option {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .login_form .login_option .option {
+      width: calc(100% / 2 - 12px);
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .login_form .login_option .option span {
+      height: 56px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      background: #121212;
+      border: 1px solid #DADAF2;
+      border-radius: 5px;
+      margin: 34px 0 24px 0;
+      color: white;
+      font-weight: 500;
+      transition: 0.2s ease;
+    }
+
+    .login_form .login_option .option:hover span {
+      background: #121212;
+      border-color: #626cd6;
+    }
+
+    .login_form p {
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .login_form .separator {
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    /* Login option separator styling */
+    .login_form .separator span {
+      background: #fff;
+      z-index: 1;
+      padding: 0 10px;
+      position: relative;
+    }
+
+    .login_form .separator::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      top: 50%;
+      left: 0;
+      height: 1px;
+      background: #e05a5a;
+      display: block;
+    }
+
+    form .input_box label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    /* Input field styling */
+    form .input_box input {
+      width: 100%;
+      height: 57px;
+      border: 1px solid #DADAF2;
+      border-radius: 5px;
+      outline: none;
+      background: #121212;
+      font-size: 17px;
+      padding: 0px 20px;
+      margin-bottom: 25px;
+      transition: 0.2s ease;
+      color: white;
+    }
+
+    form .input_box input:focus {
+      border-color: #626cd6;
+    }
+
+    form .input_box .password_title {
+      display: flex;
+      justify-content: space-between;
+      text-align: center;
+    }
+
+    form .input_box {
+      position: relative;
+    }
+
+    a {
+      text-decoration: none;
+      color: #626cd6;
+      font-weight: 500;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* Login button styling */
+    form button {
+      width: 100%;
+      height: 56px;
+      border-radius: 5px;
+      border: none;
+      outline: none;
+      background: #0174dc;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 500;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-bottom: 28px;
+      transition: 0.3s ease;
+    }
+
+    form button:hover {
+      background: rgba(73, 84, 208, 0.932);
+    }
+
+    /* Hiding sign-up form initially */
+    #signup_form {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login_form">
+    <!-- Login and Sign-up form container -->
+    <center>
+      <h2>Chess Game</h2>
+    </center>
+    <div class="login_option">
+      <div class="option" id="login_option">
+        <span>Create Room</span>
+      </div>
+      <div class="option" id="signup_option">
+        <span>Join Room</span>
+      </div>
+    </div>
+
+    <form id="login_form">
+      <div style="margin-bottom: 1rem;"></div>
+
+      <h3>Create Room</h3>
+      <div style="margin-bottom: 2rem;"></div>
+
+      <div class="input_box">
+        <label for="login_email">UserName</label>
+        <input type="text" id="username" placeholder="Enter UserName" required />
+      </div>
+      <div class="input_box">
+        <label for="login_email">Room ID</label>
+        <input type="text" id="login_email" placeholder="Enter Your own private Room ID" required />
+      </div>
+
+      <button type="submit" id="createGame">Create</button>
+    </form>
+
+    <form id="signup_form">
+      <div style="margin-bottom: 1rem;"></div>
+
+      <h3>Join Room</h3>
+      <div style="margin-bottom: 2rem;"></div>
+
+      <div class="input_box">
+        <label for="signup_email">UserName</label>
+        <input type="text" id="jusername" placeholder="Enter UserName" required />
+      </div>
+
+      <div class="input_box">
+        <label for="signup_email">Room ID</label>
+        <input type="text" id="signup_email" placeholder="Enter Room ID" required />
+      </div>
+
+      <button type="submit" id="joinGame">Join </button>
+    </form>
+  </div>
+
+  <!-- document.getElementById('createGame').addEventListener('click', function() {
+      window.location.replace('/white?code='+ document.getElementById('login_email').value);
+  }); -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"
+    integrity="sha512-luMnTJZ7oEchNDZAtQhgjomP1eZefnl82ruTH/3Oj/Yu5qYtwL7+dVRccACS/Snp1lFXq188XFipHKYE75IaQQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script>
+
+
+    const scoket = io();
+
+    scoket.on('user', (username) => {
+      console.log('New user connected: ' + username);
+    });
+
+    document.getElementById('createGame').addEventListener('click', function (event) {
+      event.preventDefault();
+      const roomId = document.getElementById('login_email').value.trim();
+      const username = document.getElementById('username').value.trim();
+      if (username) {
+        scoket.emit('setusername', {name:username});
+
+        if (roomId) {
+
+          window.location.replace('/white?code=' + encodeURIComponent(roomId));
+          document.getElementById('login_email').value = '';
+
+        } else {
+          alert('Please enter a valid Room ID.');
+        }
+      } else {
+        alert('Error Username')
+      }
+    });
+
+    document.getElementById('joinGame').addEventListener('click', function (event) {
+      event.preventDefault(); // Prevent default form submission
+      const roomId = document.getElementById('signup_email').value.trim();
+      const username = document.getElementById('jusername').value.trim();
+      if (username) {
+
+        scoket.emit('setusername', username);
+        if (roomId) {
+          window.location.replace('/black?code=' + encodeURIComponent(roomId));
+          document.getElementById('signup_email').value = '';
+
+        } else {
+          alert('Please enter a valid Room ID.');
+        }
+      } else {
+        alert('Error Username')
+      }
+    });
+
+    var urlParams = new URLSearchParams(window.location.search);
+
+    if (urlParams.get('error') == 'invalidCode') {
+      document.getElementById('errorMessage').textContent = 'Invalid invite code';
+    }
+  </script>
+
+  <script>
+    document.getElementById("login_option").addEventListener("click", function () {
+      document.getElementById("login_form").style.display = "block";
+      document.getElementById("signup_form").style.display = "none";
+    });
+
+    document.getElementById("signup_option").addEventListener("click", function () {
+      document.getElementById("signup_form").style.display = "block";
+      document.getElementById("login_form").style.display = "none";
+    });
+
+    document.getElementById("show_signup").addEventListener("click", function (event) {
+      event.preventDefault();
+      document.getElementById("signup_form").style.display = "block";
+      document.getElementById("login_form").style.display = "none";
+    });
+
+    document.getElementById("show_login").addEventListener("click", function (event) {
+      event.preventDefault();
+      document.getElementById("login_form").style.display = "block";
+      document.getElementById("signup_form").style.display = "none";
+    });
+  </script>
+
+
+
+</body>
+
+</html>

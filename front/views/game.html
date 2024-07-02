@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="/socket.io/socket.io.js"></script>
+    {{> head}}
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        #myBoard {
+            width: 700px;
+            height: 700px;
+            margin: 5px auto;
+            border: 2px solid #333;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-panel {
+            width: 700px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #fff;
+            border: 2px solid #333;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+
+        #status,
+        #pgn {
+            background-color: #e0e0e0;
+            padding: 10px;
+            border-radius: 5px;
+            min-height: 30px;
+            margin-top: 5px;
+        }
+
+        .main {
+            display: flex;
+        }
+
+        .pgn {
+            white-space: pre-wrap;
+            /* Preserves whitespace and line breaks */
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+        }
+
+        .chat-panel {
+            width: 300px;
+            margin: 0 20px;
+            padding: 10px;
+            background-color: #fff;
+            border: 2px solid #333;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            background-color: #e0e0e0;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .chat-input {
+            display: flex;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #333;
+            border-radius: 5px;
+        }
+
+        .chat-input button {
+            padding: 10px;
+            margin-left: 10px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main">
+        <div id="myBoard" style="cursor: pointer;"></div>
+
+        <div class="info-panel">
+        <label>Status:</label>
+        <div id="status"></div>
+        
+        <label>PGN:</label>
+        <div class="pgn" id="pgn"></div>
+    </div>
+    
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"
+        integrity="sha512-luMnTJZ7oEchNDZAtQhgjomP1eZefnl82ruTH/3Oj/Yu5qYtwL7+dVRccACS/Snp1lFXq188XFipHKYE75IaQQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        const scoket = io();
+        var user;
+        let playerColor = '{{color}}';
+        console.log('Playing as ' + playerColor);
+
+       
+       
+        
+       
+        document.getElementById('sendButton').addEventListener('click', function () {
+            const chatInput = document.getElementById('chatInput');
+            const chatMessage = chatInput.value.trim();
+            if (chatMessage) {
+                ;
+                chatInput.value = '';
+                // Here you would send the message to the server or opponent
+                if (chatMessage !== '') {
+                    socket.emit('msg', { msg: chatMessage })
+                    document.getElementById('chatInput').value = '';
+                }
+            }
+        });
+
+
+        // Handle receiving messages
+        function receiveMessageFromServer(message) {
+            addMessageToChat('Opponent: ' + message);
+        }
+
+        function addMessageToChat(message) {
+            const chatBox = document.getElementById('chatBox');
+            chatBox.innerHTML += '<div>' + message + '</div>';
+            chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the bottom
+        }
+
+
+
+        scoket.on('newmsg', function (data) {
+            console.log('server: ' + JSON.stringify(data).toString);
+            addMessageToChat(user + ' : ' + data.msg)
+        });
+
+
+
+        scoket.on('user', function (data) {
+            console.log('New user connected: ' + data.name);
+            addMessageToChat('username: '+data.name);
+        });
+        
+
+
+        function sendMessageToServer(message) {
+            if (message !== '') {
+                document.getElementById('chatInput').value = '';
+                socket.emit('msg', { msg: message, sender: scoket.username })
+            }
+        }
+
+
+    </script>
+    <script src="../public/js/index.js"></script>
+</body>
+
+</html>
