@@ -60,28 +60,42 @@ function updateStatus () {
         moveColor = 'Black'
     }
 
+    
     // checkmate?
     if (game.in_checkmate()) {
-        status = 'Game over, ' + moveColor + ' is in checkmate.'
+        var winningColor = moveColor === 'white' ? 'black' : 'white'; // Determine the winning color
+        status = 'Game over, ' + moveColor + ' is in checkmate. ' + winningColor + ' wins!'; // Update the status with the winner
+        alertify.alert('Message', 'Game over, ' + winningColor + ' wins!', function () {  }).set('closable', false);    
     }
 
     // draw?
     else if (game.in_draw()) {
         status = 'Game over, drawn position'
+        alertify.alert('Message',status, function () { }).set('closable', false); 
+    }
+
+    else if (game.in_check()) {
+        status =  moveColor + ' is in Check.'
     }
 
     else if (gameOver) {
         status = 'Opponent disconnected, you win!'
+        alertify.alert('Message',status, function () { }).set('closable', false);    
+
     }
+   
 
     else if (!gameHasStarted) {
-        status = 'Waiting for black to join'
+        if(playerColor == 'white'){
+            status = 'Waiting for black to join'
+             alertify.alert('Message',status, function () { }).set('closable', false); 
+        }
     }
 
     // game still on
     else {
         status = moveColor + ' to move'
-
+        document.body.style.backgroundColor = moveColor
         // check?
         if (game.in_check()) {
             status += ', ' + moveColor + ' is in check'

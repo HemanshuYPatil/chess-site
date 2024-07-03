@@ -7,7 +7,7 @@ module.exports = io => {
         let currentCode = null;
         var users = [];
         socket.on('move', function(move) {
-            console.log('move detected')
+            console.log('move detected : '+move)
 
             io.to(currentCode).emit('newMove', move);
         });
@@ -36,7 +36,7 @@ module.exports = io => {
             } else {
               users.push(data.name);
               socket.username = data.name;
-              io.emit('user', data);
+              socket.emit('user', data.name);
               console.log('Username set: ' + data.name); 
             }
           });
